@@ -3,14 +3,17 @@ Irish is a highly inflectional Celtic language with Verb-Subject-Object (VSO) wo
 1. Movement takes place as in the example above and you are left with a trace (unfilled space).
 2. Use a resumptive pronoun which provides an indication back to what is being referred to. Resumptive pronouns are not typical in English, but can still be expressed. For instance, in the sentence "This is the girl that whenever it rains she cries." Here, "she" acts as the resumptive pronoun, restating the person on whom an action is being completed.
 
-#### Forms of Irish Complementisers
-We begin with finite complement clauses, which is the simplest case where there are no long-distance dependencies. The particle used here is termed the **go** particle, which can surface in various ways due to it taking tense marking. For instance, in the following example the *go* particle takes a past-tense marking *r*:
+## Forms of Irish Complementisers
+### Go Particle
+We begin with finite complement clauses, which is the simplest case where there are no long-distance dependencies. This complementiser particle will never be preceded by a noun, only a verb (He said that...) or adjective (I am sure that...). The particle used here is termed the **go** particle, which can surface in various ways due to it taking tense marking. For instance, in the following example the *go* particle takes a past-tense marking *r*:
 ```
 Creidim gu-r inis sé bréag. 
 I-believe go–[PAST] tell he lie 
 ‘I believe that he told a lie.’
 ```
+The forms of this particle are "go", "gur" (past / conditional form when followed by a consonant), "gurb" (present / future form before a vowel) , and "gurbh" (past / conditional form when followed by a vowel). The use of this particle triggers lenition.
 
+### aL Particle
 Any finite clause which contains a trace due to non-local movement is introduced using a different particle, one which is termed **aL** (expressed as 'a').
 We can see an example of this below with a trace *__*:
 ```
@@ -19,6 +22,7 @@ the poetry aL composed she
 ‘the poetry that she composed’
 ```
 
+### aN Particle
 Lastly, any finite clause which contains a *resumptive pronoun* is introduced using the final particle, which is termed **aN** (also typically expressed as 'a', but which can also take tense marking e.g 'ar').
 See an example below with the resumptive pronoun *her* referring back to *the girl*:
 ```
