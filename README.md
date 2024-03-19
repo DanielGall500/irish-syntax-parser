@@ -5,7 +5,7 @@ Irish is a highly inflectional Celtic language with Verb-Subject-Object (VSO) wo
 
 ## Forms of Irish Complementisers
 ### Go Particle
-We begin with finite complement clauses, which is the simplest case where there are no long-distance dependencies. This complementiser particle will never be preceded by a noun, only a verb (He said that...) or adjective (I am sure that...). The particle used here is termed the **go** particle, which can surface in various ways due to it taking tense marking. For instance, in the following example the *go* particle takes a past-tense marking *r*:
+We begin with finite complement clauses, which is the simplest case where there are no long-distance dependencies. This complementiser particle will typically be preceded by a verb (He said that...) or adjective (I am sure that...). The particle used here is termed the **go** particle, which can surface in various ways due to it taking tense marking. For instance, in the following example the *go* particle takes a past-tense marking *r*:
 ```
 Creidim gu-r inis sé bréag. 
 I-believe go–[PAST] tell he lie 
