@@ -1,8 +1,7 @@
-from matcher import ComplementiserMatcher
-from spacy.language import Language
+from tools.matcher import ComplementiserMatcher
 
 class IrishComplementiserClassifier:
-    def __init__(self, nlp: Language):
+    def __init__(self):
         self.matcher = ComplementiserMatcher()
 
     def __call__(self, lemmas: list[str]):
