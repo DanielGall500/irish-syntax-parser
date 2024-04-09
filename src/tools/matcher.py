@@ -10,6 +10,18 @@ class ComplementiserMatcher:
         a_particle = self.get_a_particle(lemmas)
         matrix = np.vstack((go_particle, a_particle))
         return matrix
+    
+    def get_sum_of_occurrences(self, lemmas: list[list[str]]) -> np.array:
+        matrices = []
+        for l in lemmas:
+            matrix = self.__call__(l)
+            matrices.append(matrix)
+
+        complementiser_sums = np.array([0,0])
+        for m in matrices:
+            sums = np.sum(m, axis=1)
+            complementiser_sums = np.add(complementiser_sums, sums)
+        return complementiser_sums
 
     def get_particle(self, realisations: list[str], lemmas: list[str]) -> list[int]:
         n = len(lemmas)

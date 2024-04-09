@@ -8,5 +8,8 @@ class IrishComplementiserClassifier:
         matches = self.matcher(lemmas)
         return matches
 
+    def get(self):
+        return self.matcher 
+
     def match(self, sentence):
         return self.matcher(sentence)
