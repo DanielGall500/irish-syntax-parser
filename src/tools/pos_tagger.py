@@ -1,6 +1,6 @@
 from tools.lemmatiser import IrishLemmatiser
 import pandas as pd
-from abc import ABC
+from abc import ABC, abstractmethod
 
 class POSTagger(ABC):
     @abstractmethod
@@ -29,16 +29,14 @@ class IrishPOSTagger(POSTagger):
         nouns_as_list = list(nouns['Item'])
         noun_lookup = {noun:True for noun in nouns_as_list}
 
-        resumptive pronouns = ['liom']
+        resumptive_pronouns = ['liom']
         resumptive_lookup = {res:True for res in resumptive_pronouns}
 
         self.POS_lookup = {
             "ADJ": adj_lookup,
-            "NOUN": noun_lookup
+            "NOUN": noun_lookup,
             "RES": resumptive_pronouns
         }
-
-        self.lemmatiser = IrishLemmatiser()
 
     def is_POS(self, lemma: str, pos: str):
         return lemma in self.POS_lookup[pos]
