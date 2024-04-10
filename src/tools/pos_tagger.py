@@ -1,36 +1,53 @@
 from tools.lemmatiser import IrishLemmatiser
 import pandas as pd
+from abc import ABC
+
+class POSTagger(ABC):
+    @abstractmethod
+    def is_adjective(self, lemma: str):
+        pass
+
+    @abstractmethod
+    def is_noun(self, lemma: str):
+        pass
+
+    @abstractmethod
+    def is_POS(self, lemma: str, POS: str):
+        pass
 
 # this is too specific to the format of the CSV file
-class POSTagger:
+class IrishPOSTagger(POSTagger):
     def __init__(self):
-        adjectives = pd.read_csv("data/POS/focloir_adjectives.csv")
-        adj_list = list(adjectives['Item'])
-        self.adj_lookup = {adj:True for adj in adj_list}
+        self.adj_path = "data/POS/focloir_adjectives.csv"
+        self.noun_path = "data/POS/focloir_nouns.csv"
 
-        nouns = pd.read_csv("data/POS/focloir_nouns.csv")
-        noun_list = list(nouns['Item'])
-        self.noun_lookup = {noun:True for noun in noun_list}
+        adjectives = pd.read_csv(self.adj_path)
+        adjs_as_list = list(adjectives['Item'])
+        adj_lookup = {adj:True for adj in adjs_as_list}
+
+        nouns = pd.read_csv(self.noun_path)
+        nouns_as_list = list(nouns['Item'])
+        noun_lookup = {noun:True for noun in nouns_as_list}
+
+        resumptive pronouns = ['liom']
+        resumptive_lookup = {res:True for res in resumptive_pronouns}
+
+        self.POS_lookup = {
+            "ADJ": adj_lookup,
+            "NOUN": noun_lookup
+            "RES": resumptive_pronouns
+        }
 
         self.lemmatiser = IrishLemmatiser()
 
-    # these functions should be improved 
-    def is_adjective(self, row):
-        # does not take into account when the adjective
-        # looks like a noun.
-        right_of_comp = row['Right'].lower()
-        if len(right_of_comp) > 0:
-            lemmatised = self.lemmatiser(right_of_comp)
-            first_lemma = lemmatised[0]
-            return self.is_POS(first_lemma, self.adj_lookup)
-        return False
+    def is_POS(self, lemma: str, pos: str):
+        return lemma in self.POS_lookup[pos]
 
-    def preceded_by_noun(self, row):
-        left_of_comp = row['Left'].lower()
-        if len(left_of_comp) > 0:
-            lemmatised = self.lemmatiser(left_of_comp)
-            final_lemma = lemmatised[-1]
-            return self.is_POS(final_lemma, self.noun_lookup)
+    def is_adjective(self, lemma: str):
+        return self.is_POS(lemma, "ADJ")
 
-    def is_POS(self, word, POS_lookup):
-        return word in POS_lookup
+    def is_noun(self, lemma: str):
+        return self.is_POS(lemma, "NOUN")
+
+    def is_resumptive_pronoun(self, lemma: str):
+        return self.is_POS(lemma, "RES")
