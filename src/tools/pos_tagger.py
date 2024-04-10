@@ -27,14 +27,20 @@ class POSTagger(ABC):
     def is_POS(self, lemma: str, POS: str) -> bool:
         pass
 
-# this is too specific to the format of the CSV file
 class IrishPOSTagger(POSTagger):
+    resumptive_pronouns = [
+        "leat", "leis", "léi", "linn", "libh", "leo",
+        "ort", "air", "uirthi", "orainn", "oraibh", "orthu",
+        "agat", "aige", "aici", "againn", "agaibh", "acu",
+        "duit", "dó", "di", "dúinn", "daoibh", "dóibh",
+        "ionat", "ann", "inti", "ionainn", "ionaibh", "iontu"
+    ]
+
     def __init__(self):
         adj_lookup = get_lookup_from_focloir(IRISH_ADJ_PATH)
         noun_lookup = get_lookup_from_focloir(IRISH_NOUN_PATH)
 
-        resumptive_pronouns = ['liom']
-        resumptive_lookup = {res:True for res in resumptive_pronouns}
+        resumptive_lookup = {res:True for res in self.resumptive_pronouns}
 
         self.POS_lookup = {
             "ADJ": adj_lookup,
