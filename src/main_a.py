@@ -1,4 +1,3 @@
-from tools.classifier import IrishComplementiserClassifier
 from tools.lemmatiser import IrishLemmatiser
 from tools.pos_tagger import IrishPOSTagger
 import pandas as pd
@@ -22,11 +21,17 @@ def filter_resumptive(ds):
     # Now we will filter to only find a complementisers
     # which include a resumptive pronoun anywhere in the
     # remaining sentence.
-    resumptive_found = ds.apply(contains_resumptive, axis=1)
-    ds_resumptive = ds[resumptive_found]
-    ds_nonresumptive = ds[~resumptive_found]
-    return ds_resumptive, ds_nonresumptive
+    resumptive_found = ds.apply(contains_resumptive, result_type="expand", axis=1)
+    is_resumptive_found = resumptive_found[0]
+    resumptive_token = resumptive_found[1]
 
+    ds['is_resumptive_found'] = is_resumptive_found
+    ds['resumptive'] = resumptive_token
+
+    ds_resumptive = ds[is_resumptive_found]
+    ds_nonresumptive = ds[~is_resumptive_found]
+
+    return ds_resumptive, ds_nonresumptive
 
 def up_to_end_of_sentence(T: str) -> str:
     final_string = ""
@@ -55,14 +60,14 @@ def is_comp_preceded_by_noun(row) -> bool:
         return tagger.is_noun(final_lemma)
     return False
 
-def contains_resumptive(row) -> bool:
+def contains_resumptive(row) -> list:
     right_of_comp = row['right_relevant'].lower()
     if len(right_of_comp) > 0:
         lemmatised = lemmatiser(right_of_comp)
         for lemma in lemmatised:
             if tagger.is_resumptive_pronoun(lemma):
-                return True
-    return False
+                return [True,lemma]
+    return [False,""]
 
 def view_data(title, resumptives, non_resumptives):
     num_resumptives = len(resumptives)
@@ -72,6 +77,7 @@ def view_data(title, resumptives, non_resumptives):
     print("Dataset: ", title)
     print("Number of Resumptives: ", round(resumptives_found_as_percent,2))
     print("Number of Non Resumptives: ", round(100.0 - resumptives_found_as_percent,2))
+    print(f"Resumptive Statistics: \n {resumptives['resumptive'].value_counts()}")
 
     # We want to only include up to the full stop
     # as we just want the current relevant sentence
