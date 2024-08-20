@@ -4,6 +4,14 @@ import pandas as pd
 IRISH_ADJ_PATH = "data/POS/focloir_adjectives.csv"
 IRISH_NOUN_PATH = "data/POS/focloir_nouns.csv"
 
+"""
+-- Focloir Lookup Function --
+Focloir is a well-known dictionary for the Irish language.
+This function returns a lookup dictionary containing all words in the
+focloir dictionary and can be used to check whether words are recognised
+as Irish from a string.
+It should only be called once in each run.
+"""
 def get_lookup_from_focloir(path: str) -> dict:
     focloir_dataset = pd.read_csv(path)
     focloir_words = list(focloir_dataset['Item'])
@@ -27,6 +35,16 @@ class POSTagger(ABC):
     def is_POS(self, lemma: str, POS: str) -> bool:
         pass
 
+"""
+-- Irish POS Tagger --
+This is a very basic part-of-speech tagger (or verifier, moreso) for Irish.
+It checks whether a word is a:
+* Adjective
+* Noun
+* Resumptive Pronoun
+
+This should be expanded on to become a more comprehensive part-of-speech tagger in the future.
+"""
 class IrishPOSTagger(POSTagger):
     resumptive_pronouns = [
         "leat", "leis", "léi", "linn", "libh", "leo",
