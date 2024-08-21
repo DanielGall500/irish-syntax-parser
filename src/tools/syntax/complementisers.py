@@ -23,7 +23,10 @@ class ComplementiserAnalyser:
     # Cyclicity concerns the notion of iterating over nested layers
     # in a hierarchical structure.
     # This implementation uses recursion.
-    def get_comp_clauses(self, lemmas: list, clauses: list):
+    def get_comp_clauses(self, lemmas: list) -> list:
+        return self._get_comp_clauses_recursive(lemmas, [])
+
+    def _get_comp_clauses_recursive(self, lemmas: list, clauses: list) -> list:
         comp_index = self.matcher.get_complementiser_outermost(lemmas)
         if comp_index != -1:
             main_clause = self._get_main_clause(lemmas, comp_index)
@@ -33,13 +36,30 @@ class ComplementiserAnalyser:
                 "clause": main_clause,
                 "selected_comp": comp
             })
-            return self.get_comp_clauses(embedded_clause, clauses)
+            return self._get_comp_clauses_recursive(embedded_clause, clauses)
         else:
             clauses.append({
                 "clause": lemmas,
                 "selected_comp": None
             })
             return clauses
+
+    def get_comp_clauses_as_str(self, lemmas: list) -> list:
+        clause_info = self.get_comp_clauses(lemmas)
+        clauses = [c['clause'] for c in clause_info]
+
+        full_str = ""
+
+        for i, c in enumerate(clause_info):
+            clause = " ".join(c['clause'])
+            selected_comp = c['selected_comp']
+            selected_comp = selected_comp if selected_comp else ""
+            print("Clause", clause)
+            print("Selected,", selected_comp)
+            full_str = full_str + " [ " + clause + " " + selected_comp
+        full_str = full_str + " ]"*len(clause_info)
+        return full_str
+
 
     def is_followed_by_number(self, lemmas: list, comp_index: int) -> bool:
         embedded_clause = self._get_embedded_clause(lemmas, comp_index)

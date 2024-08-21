@@ -13,15 +13,20 @@ def main():
 
     for s in irish_sentences:
         lemmas = lemmatiser(s)
-        clauses = comp_analyser.get_comp_clauses(lemmas, [])
+        clauses = comp_analyser.get_comp_clauses(lemmas)
+        clause_as_str = comp_analyser.get_comp_clauses_as_str(lemmas)
 
         # print the results
         print("Full Sentence: ", s)
         print("Lemmas: ", lemmas)
+        print("Parsed: ", clause_as_str)
+
+        """
         for c in clauses:
             print("Clause: ", c["clause"])
             print("Selects: ", c["selected_comp"])
             print("----")
+        """
         
         print("\n\n")
         print("Next Clause")
