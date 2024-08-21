@@ -1,4 +1,5 @@
 from tools.pos.irish import IrishPOSTagger
+from tools.syntax.matcher import ComplementiserMatcher
 
 """
 -- Syntax Manager --
@@ -13,9 +14,32 @@ It can check whether a given complementiser (go, aN, aR):
 """
 class ComplementiserAnalyser:
     tagger = IrishPOSTagger()
+    matcher = ComplementiserMatcher()
 
     def __init__(self):
         pass 
+
+    # A cyclic function to iterate through each clause of a sentence.
+    # Cyclicity concerns the notion of iterating over nested layers
+    # in a hierarchical structure.
+    # This implementation uses recursion.
+    def get_comp_clauses(self, lemmas: list, clauses: list):
+        comp_index = self.matcher.get_complementiser_outermost(lemmas)
+        if comp_index != -1:
+            main_clause = self._get_main_clause(lemmas, comp_index)
+            embedded_clause = self._get_embedded_clause(lemmas, comp_index)
+            comp = lemmas[comp_index]
+            clauses.append({
+                "clause": main_clause,
+                "selected_comp": comp
+            })
+            return self.get_comp_clauses(embedded_clause, clauses)
+        else:
+            clauses.append({
+                "clause": lemmas,
+                "selected_comp": None
+            })
+            return clauses
 
     def is_followed_by_number(self, lemmas: list, comp_index: int) -> bool:
         embedded_clause = self._get_embedded_clause(lemmas, comp_index)
@@ -27,7 +51,7 @@ class ComplementiserAnalyser:
             return self.tagger.is_number(first_lemma)
         return False
 
-    def is_comp_preceded_by_noun(self, lemmas: list, comp_index: int) -> bool:
+    def is_preceded_by_noun(self, lemmas: list, comp_index: int) -> bool:
         # store everything up to the given complementiser
         # the complementiser is indicated by the index
 
@@ -82,9 +106,10 @@ class ComplementiserAnalyser:
                     break
         return resumptive_object
 
+    # complementiser is excluded in both cases
     def _get_main_clause(self, lemmas: list, comp_index: int) -> list:
         return lemmas[:comp_index]
 
     def _get_embedded_clause(self, lemmas: list, comp_index: int) -> list:
-        return lemmas[comp_index:]
+        return lemmas[comp_index+1:]
 

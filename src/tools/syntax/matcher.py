@@ -1,10 +1,8 @@
+from language.categories import COMP_REALISATIONS, ALL_COMP_REALISATIONS
 import numpy as np
 
 class ComplementiserMatcher:
-    surface_realisations = {
-        "go": ["go", "gur", "gurb", "gurbh"],
-        "a": ["a", "ar"]
-    }
+
     def __call__(self, lemmas: list[str]) -> np.array:
         go_particle = self.get_go_particle(lemmas)
         a_particle = self.get_a_particle(lemmas)
@@ -31,12 +29,21 @@ class ComplementiserMatcher:
                 one_hot_encoding[i] = 1
         return one_hot_encoding
 
+    def get_particle_outermost(self, realisations: list[str], lemmas: list[str]) -> int:
+        for i, token in enumerate(lemmas):
+            if token in realisations:
+                return i
+        return -1
+
+    def get_complementiser_outermost(self, lemmas: list[str]) -> int:
+        return self.get_particle_outermost(ALL_COMP_REALISATIONS, lemmas)
+
     def get_go_particle(self, lemmas: list[str]) -> list:
-        realisations = self.surface_realisations['go']
+        realisations = COMP_REALISATIONS['go']
         one_hot_encoding = self.get_particle(realisations, lemmas)
         return one_hot_encoding
 
     def get_a_particle(self, lemmas: list[str]) -> list:
-        realisations = self.surface_realisations['a']
+        realisations = COMP_REALISATIONS['a']
         one_hot_encoding = self.get_particle(realisations, lemmas)
         return one_hot_encoding

@@ -1,4 +1,6 @@
 from data_manager.focloir_interface import get_lexical_items_from_focloir
+import itertools
+import numpy as np
 
 UNIQUE_IRISH_NUMS = [
     "aon",   # 1
@@ -31,6 +33,12 @@ IRISH_RESUMPTIVE_PRONOUNS = [
     "duit", "dó", "di", "dúinn", "daoibh", "dóibh",
     "ionat", "ann", "inti", "ionainn", "ionaibh", "iontu"
 ]
+
+COMP_REALISATIONS = {
+    "go": ["go", "gur", "gurb", "gurbh"],
+    "a": ["a", "ar"]
+}
+ALL_COMP_REALISATIONS = list(itertools.chain(*COMP_REALISATIONS.values()))
 
 IRISH_ADJ_PATH = "data/POS/focloir_adjectives.csv"
 IRISH_NOUN_PATH = "data/POS/focloir_nouns.csv"

@@ -45,6 +45,7 @@ def main():
         linguistic_analysis = run_syntactic_analysis(ds)
         datasets[title]["followed_by_adj"] = linguistic_analysis["followed_by_adjective"] 
         datasets[title]["preceded_by_noun"] = linguistic_analysis["preceded_by_noun"] 
+        datasets[title]["followed_by_number"] = linguistic_analysis["followed_by_number"] 
         datasets[title]["resumptive_found"] = linguistic_analysis["resumptive_found"] 
         datasets[title]["resumptive"] = linguistic_analysis["resumptive"] 
 
@@ -55,11 +56,15 @@ def main():
         ds = datasets[title]
         followed_by_adj_feature = ds["followed_by_adj"]
         preceded_by_noun_feature = ds["preceded_by_noun"]
+        followed_by_number_feature = ds["followed_by_number"]
         resumptive_found_feature = ds["resumptive_found"]
 
         if ANALYSE_GO:
             # REMOVE SENTENCES WITH ADJECTIVES FOLLOWING COMPLEMENTISER
             ds = ds[followed_by_adj_feature == False]
+
+            # REMOVE SENTENCES WITH NUMBERS FOLLOWING COMPLEMENTISER
+            ds = ds[followed_by_number_feature == False]
 
             # REMOVE SENTENCES WITH NOUN PRECEDING COMPLEMENTISER
             # This constraint can be removed.
@@ -68,13 +73,13 @@ def main():
             # ds = ds[preceded_by_noun_feature == True]
 
             # -- VIEW RESULTS -- 
-            print(f"DATASET: {title}")
-            print("Preceded by noun?")
             num_preceded = sum(preceded_by_noun_feature)
             percent_preceded = round(num_preceded / len(preceded_by_noun_feature) * 100,2)
+            percent_resumptive = (sum(resumptive_found_feature) / len(resumptive_found_feature)) * 100
+            print(f"DATASET: {title}")
+            print("Preceded by noun?")
             print(preceded_by_noun_feature.value_counts())
             print(f"Percentage Preceded: {percent_preceded}")
-            percent_resumptive = (sum(resumptive_found_feature) / len(resumptive_found_feature)) * 100
             print(f"Percentage Containing Resumptive of the Noun-Preceding Comps: {percent_resumptive}")
         else:
             # -- TODO --
@@ -98,7 +103,11 @@ def run_syntactic_analysis(ds):
 
     is_preceded_by_noun = ds.apply(lemma_decorator, 
                                    axis=1, 
-                                   args={ comp_analyser.is_comp_preceded_by_noun  })
+                                   args={ comp_analyser.is_preceded_by_noun  })
+
+    is_followed_by_number = ds.apply(lemma_decorator, 
+                                   axis=1, 
+                                   args={ comp_analyser.is_followed_by_number  })
 
     resumptive_found = ds.apply(lemma_decorator, 
                                    axis=1, 
@@ -110,6 +119,7 @@ def run_syntactic_analysis(ds):
     return {
         "followed_by_adjective": is_followed_by_adjective,
         "preceded_by_noun": is_preceded_by_noun,
+        "followed_by_number": is_followed_by_number,
         "resumptive_found": is_resumptive_found,
         "resumptive": resumptive_token
     }
