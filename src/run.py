@@ -1,4 +1,4 @@
-from tools.syntax import SyntaxManager
+from tools.syntax.complementisers import ComplementiserAnalyser
 from preprocessing.row_manipulation import to_lemmas
 from preprocessing.string_manipulation import from_beginning_of_sentence, up_to_end_of_sentence
 import pandas as pd
@@ -14,7 +14,7 @@ else:
     MUNSTER_DATASET = "data/dialect/a_munster_dataset_100k.csv"
     ULSTER_DATASET = "data/dialect/a_ulster_dataset_100k.csv"
 
-syntax_manager = SyntaxManager()
+comp_analyser = ComplementiserAnalyser()
 
 def main():
     # -- Step 1: Store the data from each region. --
@@ -42,80 +42,67 @@ def main():
         datasets[title]["complementiser"] = comps
         datasets[title]["full_sentence"] = full_sentence
 
+        linguistic_analysis = run_syntactic_analysis(ds)
+        datasets[title]["followed_by_adj"] = linguistic_analysis["followed_by_adjective"] 
+        datasets[title]["preceded_by_noun"] = linguistic_analysis["preceded_by_noun"] 
+        datasets[title]["resumptive_found"] = linguistic_analysis["resumptive_found"] 
+        datasets[title]["resumptive"] = linguistic_analysis["resumptive"] 
+
         print(ds.head())
 
     # -- Step 3: Run the syntactic analysis. --
     for title in datasets.keys():
         ds = datasets[title]
-        linguistic_analysis = run_syntactic_analysis(ds)
+        followed_by_adj_feature = ds["followed_by_adj"]
+        preceded_by_noun_feature = ds["preceded_by_noun"]
+        resumptive_found_feature = ds["resumptive_found"]
 
         if ANALYSE_GO:
             # REMOVE SENTENCES WITH ADJECTIVES FOLLOWING COMPLEMENTISER
-            followed_by_adj = linguistic_analysis["followed_by_adjective"] 
-            ds = ds[~followed_by_adj]
+            ds = ds[followed_by_adj_feature == False]
 
             # REMOVE SENTENCES WITH NOUN PRECEDING COMPLEMENTISER
             # This constraint can be removed.
             # Given that a noun precedes it, does it tend to contain a potential resumptive pronoun?
             # TODO: This should work through each clause in cycles.
-            preceded_by_noun = linguistic_analysis["preceded_by_noun"] 
-            ds = ds[preceded_by_noun]
-
-            is_resumptive_found = linguistic_analysis["resumptive_found"]
+            # ds = ds[preceded_by_noun_feature == True]
 
             # -- VIEW RESULTS -- 
             print(f"DATASET: {title}")
             print("Preceded by noun?")
-            num_preceded = sum(preceded_by_noun)
-            percent_preceded = round(num_preceded / len(preceded_by_noun) * 100,2)
-            print(preceded_by_noun.value_counts())
+            num_preceded = sum(preceded_by_noun_feature)
+            percent_preceded = round(num_preceded / len(preceded_by_noun_feature) * 100,2)
+            print(preceded_by_noun_feature.value_counts())
             print(f"Percentage Preceded: {percent_preceded}")
-            percent_resumptive = (sum(is_resumptive_found) / len(is_resumptive_found)) * 100
+            percent_resumptive = (sum(resumptive_found_feature) / len(resumptive_found_feature)) * 100
             print(f"Percentage Containing Resumptive of the Noun-Preceding Comps: {percent_resumptive}")
         else:
-            followed_by_adj = linguistic_analysis["followed_by_adjective"] 
-
             # -- TODO --
-            # remove any complementisers followed by
-            # a number
+            # remove any complementisers followed by a number
 
             # FILTER: KEEP SENTENCES WITH NOUN PRECEDING COMPLEMENTISER
-            preceded_by_noun = linguistic_analysis["preceded_by_noun"] 
-            print("PRECEDED BY NOUN?")
-            ds = ds[preceded_by_noun]
-
-            # -- FILTER: Resumptive / Non-Resumptive
-            # Now we will filter to only find a complementisers
-            # which include a resumptive pronoun anywhere in the
-            # remaining sentence.
-
-            resumptive_found = linguistic_analysis["resumptive_found"]
-            resumptives = linguistic_analysis["resumptive"]
-
-            print(resumptive_found)
-            ds['is_resumptive_found'] = resumptive_found
-            ds['resumptive'] = resumptives
+            ds = ds[preceded_by_noun_feature]
 
             # apply a filter depending on whether a resumptive
             # pronoun is present or not present
             # this distinguishes aN (resumptive) from aL (no resumptive)
-            ds_resumptive = ds[resumptive_found]
-            ds_nonresumptive = ds[~resumptive_found]
+            ds_resumptive = ds[resumptive_found_feature]
+            ds_nonresumptive = ds[~resumptive_found_feature]
             view_data(title, ds_resumptive, ds_nonresumptive)
 
 
 def run_syntactic_analysis(ds):
     is_followed_by_adjective = ds.apply(lemma_decorator, 
                                    axis=1, 
-                                   args={ syntax_manager.is_followed_by_adjective  })
+                                   args={ comp_analyser.is_followed_by_adjective  })
 
     is_preceded_by_noun = ds.apply(lemma_decorator, 
                                    axis=1, 
-                                   args={ syntax_manager.is_comp_preceded_by_noun  })
+                                   args={ comp_analyser.is_comp_preceded_by_noun  })
 
     resumptive_found = ds.apply(lemma_decorator, 
                                    axis=1, 
-                                   args={ syntax_manager.contains_resumptive  })
+                                   args={ comp_analyser.contains_resumptive  })
 
     is_resumptive_found = resumptive_found.apply(lambda x: x['found'])
     resumptive_token = resumptive_found.apply(lambda x: x['lemma'])

@@ -1,4 +1,4 @@
-from tools.pos_tagger import IrishPOSTagger
+from tools.pos.pos_tagger import IrishPOSTagger
 
 """
 -- Syntax Manager --
@@ -11,17 +11,27 @@ It can check whether a given complementiser (go, aN, aR):
 * Is directly followed by an adjective.
 * Contains a potential resumptive pronoun with in the embedded clause.
 """
-class SyntaxManager:
+class ComplementiserAnalyser:
     tagger = IrishPOSTagger()
 
     def __init__(self):
         pass 
 
+    def is_followed_by_number(self, lemmas: list, comp_index: int) -> bool:
+        embedded_clause = self._get_embedded_clause(lemmas, comp_index)
+        embedded_clause_exists = len(embedded_clause) > 0
+
+        if embedded_clause_exists:
+            # take the very first lemma in the embedded clause
+            first_lemma = embedded_clause[0]
+            return self.tagger.is_number(first_lemma)
+        return False
+
     def is_comp_preceded_by_noun(self, lemmas: list, comp_index: int) -> bool:
         # store everything up to the given complementiser
         # the complementiser is indicated by the index
 
-        main_clause = lemmas[:comp_index]
+        main_clause = self._get_main_clause(lemmas, comp_index)
         main_clause_exists = len(main_clause) > 0
 
         # if there is a main clause to the left of the complementiser
@@ -33,13 +43,13 @@ class SyntaxManager:
             return self.tagger.is_noun(final_lemma)
         return False
 
-    def is_followed_by_adjective(self, tokens: list, comp_index: int):
+    def is_followed_by_adjective(self, lemmas: list, comp_index: int):
         # does not take into account when the adjective
         # looks like a noun.
         # right_of_comp = row['Right'].lower()
 
         # store everything in the embedded clause
-        embedded_clause = tokens[comp_index:]
+        embedded_clause = self._get_embedded_clause(lemmas, comp_index)
         embedded_clause_exists = len(embedded_clause) > 0
 
         if embedded_clause_exists:
@@ -58,7 +68,7 @@ class SyntaxManager:
         }
 
         # store everything in the embedded clause
-        embedded_clause = lemmas[comp_index:]
+        embedded_clause = self._get_embedded_clause(lemmas, comp_index)
         embedded_clause_exists = len(embedded_clause) > 0
 
         if embedded_clause_exists:
@@ -71,3 +81,10 @@ class SyntaxManager:
                     resumptive_object["lemma"] = lemma
                     break
         return resumptive_object
+
+    def _get_main_clause(self, lemmas: list, comp_index: int) -> list:
+        return lemmas[:comp_index]
+
+    def _get_embedded_clause(self, lemmas: list, comp_index: int) -> list:
+        return lemmas[comp_index:]
+

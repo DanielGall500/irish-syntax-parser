@@ -1,5 +1,4 @@
-# characters which mark the end of an Irish sentence
-EOS_CHARS = ['.',',','?','!','-','\'', '>', '<']
+from language.syntax import EOS_CHARS
 
 def up_to_end_of_sentence(T: str) -> str:
     final_string = ""
