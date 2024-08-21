@@ -1,5 +1,4 @@
-from language.categories import UNIQUE_IRISH_NUMS,IRISH_RESUMPTIVE_PRONOUNS
-from data_manager.focloir_interface import get_lookup_from_focloir
+from language.categories import UNIQUE_IRISH_NUMS, IRISH_RESUMPTIVE_PRONOUNS, IRISH_ADJECTIVES, IRISH_NOUNS
 from tools.pos.pos_tagger import POSTagger 
 
 """
@@ -12,17 +11,14 @@ It checks whether a word is a:
 
 This should be expanded on to become a more comprehensive part-of-speech tagger in the future.
 """
-IRISH_ADJ_PATH = "data/POS/focloir_adjectives.csv"
-IRISH_NOUN_PATH = "data/POS/focloir_nouns.csv"
 
 class IrishPOSTagger(POSTagger):
 
     def __init__(self):
-        adj_lookup = get_lookup_from_focloir(IRISH_ADJ_PATH)
-        noun_lookup = get_lookup_from_focloir(IRISH_NOUN_PATH)
-
         resumptive_lookup = {res:True for res in IRISH_RESUMPTIVE_PRONOUNS}
         number_lookup = {num:True for num in UNIQUE_IRISH_NUMS}
+        adj_lookup = {adj:True for adj in IRISH_ADJECTIVES}
+        noun_lookup = {n:True for n in IRISH_NOUNS}
 
         self.POS_lookup = {
             "ADJ": adj_lookup,

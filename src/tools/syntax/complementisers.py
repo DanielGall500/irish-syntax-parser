@@ -1,4 +1,4 @@
-from tools.pos.pos_tagger import IrishPOSTagger
+from tools.pos.irish import IrishPOSTagger
 
 """
 -- Syntax Manager --

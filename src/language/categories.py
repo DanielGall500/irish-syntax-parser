@@ -1,3 +1,5 @@
+from data_manager.focloir_interface import get_lexical_items_from_focloir
+
 UNIQUE_IRISH_NUMS = [
     "aon",   # 1
     "dó",    # 2
@@ -29,3 +31,8 @@ IRISH_RESUMPTIVE_PRONOUNS = [
     "duit", "dó", "di", "dúinn", "daoibh", "dóibh",
     "ionat", "ann", "inti", "ionainn", "ionaibh", "iontu"
 ]
+
+IRISH_ADJ_PATH = "data/POS/focloir_adjectives.csv"
+IRISH_NOUN_PATH = "data/POS/focloir_nouns.csv"
+IRISH_ADJECTIVES = get_lexical_items_from_focloir(IRISH_ADJ_PATH)
+IRISH_NOUNS = get_lexical_items_from_focloir(IRISH_NOUN_PATH)

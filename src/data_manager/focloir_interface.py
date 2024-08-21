@@ -1,5 +1,5 @@
+from tools.syntax.complementisers import from_beginning_of_sentence, up_to_end_of_sentence
 import pandas as pd
-from tools.syntax import SyntaxManager, from_beginning_of_sentence, up_to_end_of_sentence
 
 # all dataset paths
 GO_CONNACHT_80k = "data/dialect/go_connacht_dataset_80k.csv"
@@ -10,7 +10,6 @@ A_MUNSTER_100k = "data/dialect/a_munster_dataset_100k.csv"
 A_ULSTER_100k = "data/dialect/a_ulster_dataset_100k.csv"
 
 class FocloirDataInterface:
-    syntax_manager = SyntaxManager()
     datasets = {
         "go": {
             "Connacht": GO_CONNACHT_80k,
@@ -77,8 +76,7 @@ focloir dictionary and can be used to check whether words are recognised
 as Irish from a string.
 It should only be called once in each run.
 """
-def get_lookup_from_focloir(path: str) -> dict:
+def get_lexical_items_from_focloir(path: str) -> dict:
     focloir_dataset = pd.read_csv(path)
     focloir_words = list(focloir_dataset['Item'])
-    lookup = {w:True for w in focloir_words}
-    return lookup
+    return focloir_words
