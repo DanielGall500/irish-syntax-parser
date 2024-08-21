@@ -1,4 +1,4 @@
-from tools.lemmatiser import IrishLemmatiser
+from tools.morphology.lemmatiser import IrishLemmatiser
 
 lemmatiser = IrishLemmatiser()
 

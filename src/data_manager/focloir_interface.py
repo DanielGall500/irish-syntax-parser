@@ -1,4 +1,4 @@
-from tools.syntax.complementisers import from_beginning_of_sentence, up_to_end_of_sentence
+from preprocessing.string_manipulation import from_beginning_of_sentence, up_to_end_of_sentence
 import pandas as pd
 
 # all dataset paths
