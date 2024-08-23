@@ -16,6 +16,68 @@ else:
 
 comp_analyser = ComplementiserAnalyser()
 
+class ClauseParser:
+    def __init__(self):
+        pass
+
+    def __call__(self, lemmas: list[str]):
+        all_clauses_analysed = []
+        clauses = comp_analyser.get_comp_clauses(lemmas)
+        clause_as_str = comp_analyser.get_comp_clauses_as_str(lemmas)
+        for clause in clauses:
+            c = clause["clause"]
+            selected_comp = clause["selected_comp"]
+            comp_preceded_by_noun = comp_analyser.clause_ends_in_noun(c)
+            begins_with_adj = comp_analyser.clause_begins_with_adjective(c)
+            begins_with_number = comp_analyser.clause_begins_with_number(c)
+            resumptive_dict = comp_analyser.clause_contains_resumptive(c)
+            resumptive_found = resumptive_dict["found"]
+            resumptive_lemmas = resumptive_dict["lemma"]
+
+            clause_info = {
+                "clause": c,
+                "selected_comp": selected_comp,
+                "noun_final": comp_preceded_by_noun,
+                "adj_initial": begins_with_adj,
+                "number_initial": begins_with_number,
+                "is_resumptive_found": resumptive_found,
+                "resumptives": resumptive_lemmas
+            }
+            all_clauses_analysed.append(clause_info)
+        return all_clauses_analysed
+
+class SentenceParser:
+    def __init__(self):
+        self.clause_parser = ClauseParser()
+
+        # remove this:
+        from tools.morphology.lemmatiser import IrishLemmatiser
+        self.lemmatiser = IrishLemmatiser()
+
+    def __call__(self, sentence: str):
+        sentence_info = {
+            "full": sentence,
+            "lemmas": None,
+            "clause_structure": None,
+            "num_embedded_clauses": None
+        }
+
+        lemmas = self.lemmatiser(sentence)
+        clause_structure = self.clause_parser(lemmas)
+        n_clauses = len(clause_structure)
+
+        sentence_info["lemmas"] = lemmas
+        sentence_info["clause_structure"] = clause_structure
+        sentence_info["num_embedded_clauses"] = len(n_clauses)
+
+
+def format(ds):
+    main_clauses = [from_beginning_of_sentence(x) for x in ds['Left']]
+    embedded_clauses = [up_to_end_of_sentence(x) for x in ds['Right']]
+    comps = ds['KWIC']
+    full_sentences = [main + " " + comp + " " + emb for main, emb, comp in zip(main_clauses, embedded_clauses, comps)]
+
+
 def main():
     # -- Step 1: Store the data from each region. --
     df_connacht = pd.read_csv(CONNACHT_DATASET, header=0, nrows=500)

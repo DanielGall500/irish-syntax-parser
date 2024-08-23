@@ -66,26 +66,33 @@ class ComplementiserAnalyser:
         embedded_clause_exists = len(embedded_clause) > 0
 
         if embedded_clause_exists:
-            # take the very first lemma in the embedded clause
-            first_lemma = embedded_clause[0]
-            return self.tagger.is_number(first_lemma)
+            return self.clause_begins_with_number(embedded_clause)
         return False
 
-    def is_preceded_by_noun(self, lemmas: list, comp_index: int) -> bool:
+    def clause_begins_with_number(self, lemmas: list) -> bool:
+        # take the first lemma in the clause
+        initial_lemma = lemmas[0]
+
+        # check whether that lemma is a number
+        return self.tagger.is_number(initial_lemma)
+
+    def is_preceded_by_noun(self, lemmas: list, comp_index:int) -> bool:
         # store everything up to the given complementiser
         # the complementiser is indicated by the index
-
         main_clause = self._get_main_clause(lemmas, comp_index)
         main_clause_exists = len(main_clause) > 0
 
         # if there is a main clause to the left of the complementiser
         if main_clause_exists:
-            # take the final lemma of the main clause
-            final_lemma = main_clause[-1]
-
-            # check whether that lemma is a noun
-            return self.tagger.is_noun(final_lemma)
+            return self.clause_ends_in_noun(main_clause)
         return False
+
+    def clause_ends_in_noun(self, lemmas: list) -> bool:
+        # take the last lemma in the clause
+        final_lemma = lemmas[-1]
+
+        # check whether that lemma is a noun
+        return self.tagger.is_noun(final_lemma)
 
     def is_followed_by_adjective(self, lemmas: list, comp_index: int):
         # does not take into account when the adjective
@@ -96,35 +103,38 @@ class ComplementiserAnalyser:
         embedded_clause = self._get_embedded_clause(lemmas, comp_index)
         embedded_clause_exists = len(embedded_clause) > 0
 
+        # if there is a main clause to the left of the complementiser
         if embedded_clause_exists:
-            # take the very first lemma in the embedded clause
-            first_lemma = embedded_clause[0]
-
-            # check whether the first lemma in the embedded clause
-            # is an adjective in Irish
-            return self.tagger.is_adjective(first_lemma)
+            return self.clause_begins_with_adjective(embedded_clause)
         return False
 
-    def contains_resumptive(self, lemmas: list, comp_index: int) -> list:
-        resumptive_object = {
-            "found": False,
-            "lemma": None
-        }
+    def clause_begins_with_adjective(self, lemmas: list) -> bool:
+        # take the first lemma in the clause
+        initial_lemma = lemmas[0]
 
+        # check whether that lemma is a noun
+        return self.tagger.is_noun(initial_lemma)
+
+    def contains_resumptive(self, lemmas: list, comp_index: int) -> list:
         # store everything in the embedded clause
         embedded_clause = self._get_embedded_clause(lemmas, comp_index)
-        embedded_clause_exists = len(embedded_clause) > 0
 
-        if embedded_clause_exists:
-            # check every lemma in the embedded clause
-            # and output True is a resumptive pronoun
-            # is found
-            for lemma in embedded_clause:
-                if self.tagger.is_resumptive_pronoun(lemma):
-                    resumptive_object["found"] = True
-                    resumptive_object["lemma"] = lemma
-                    break
+        # check every lemma in the embedded clause
+        # and output True is a resumptive pronoun
+        # is found
+        return self.clause_contains_resumptive(embedded_clause)
+
+    def clause_contains_resumptive(self, lemmas: list):
+        resumptive_object = {
+            "found": False,
+            "lemma": []
+        }
+        for lemma in lemmas:
+            if self.tagger.is_resumptive_pronoun(lemma):
+                resumptive_object["found"] = True
+                resumptive_object["lemma"].append(lemma)
         return resumptive_object
+
 
     # complementiser is excluded in both cases
     def _get_main_clause(self, lemmas: list, comp_index: int) -> list:
