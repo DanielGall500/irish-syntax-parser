@@ -1,7 +1,9 @@
 from language.categories import COMP_REALISATIONS, ALL_COMP_REALISATIONS
+from tools.pos.irish import IrishPOSTagger
 import numpy as np
 
 class ComplementiserMatcher:
+    pos_tagger = IrishPOSTagger()
 
     def __call__(self, lemmas: list[str]) -> np.array:
         go_particle = self.get_go_particle(lemmas)
@@ -36,7 +38,40 @@ class ComplementiserMatcher:
         return -1
 
     def get_complementiser_outermost(self, lemmas: list[str]) -> int:
-        return self.get_particle_outermost(ALL_COMP_REALISATIONS, lemmas)
+        comp_index = self.get_particle_outermost(ALL_COMP_REALISATIONS, lemmas)
+
+        # no potential complementisers found
+        if comp_index == -1:
+            return comp_index
+
+        # account for the possibility of the complementiser
+        # being a preposition, as they can have the same
+        # surface forms
+        if self.compcheck_is_prep(lemmas, comp_index):
+            return -1
+        
+        return comp_index
+
+    def compcheck_is_prep(self, lemmas: list[str], comp_index: int):
+        comp_realisation = lemmas[comp_index]
+        highest_lemma_index = len(lemmas)-1
+
+        # if there is a word after the comp
+        if comp_index+1 < highest_lemma_index:
+            following_word = lemmas[comp_index+1]
+
+            # account for prepositional phrase "go dtí"
+            if comp_realisation == "go" and following_word == "dtí":
+                return True
+            # account for prepositional phrases like "ar an..." (on the)
+            # Irish is verb-initial, so a noun-initial phrase indicates a preposition
+            NP_initial = self.pos_tagger.is_definite_article(following_word) or self.pos_tagger.is_noun(following_word)
+            if comp_realisation == "ar" and NP_initial:
+                return True
+        return False
+
+            
+
 
     def get_go_particle(self, lemmas: list[str]) -> list:
         realisations = COMP_REALISATIONS['go']

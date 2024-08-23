@@ -88,6 +88,7 @@ class ComplementiserAnalyser:
         return False
 
     def clause_ends_in_noun(self, lemmas: list) -> bool:
+        print(lemmas)
         # take the last lemma in the clause
         final_lemma = lemmas[-1]
 

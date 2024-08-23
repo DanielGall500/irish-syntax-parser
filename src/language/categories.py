@@ -1,6 +1,9 @@
 from data_manager.focloir_interface import get_lexical_items_from_focloir
 import itertools
-import numpy as np
+
+IRISH_DEFINITE_ARTICLES = [
+    "an"
+]
 
 UNIQUE_IRISH_NUMS = [
     "aon",   # 1
