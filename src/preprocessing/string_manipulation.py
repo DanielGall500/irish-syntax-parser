@@ -18,3 +18,7 @@ def from_beginning_of_sentence(T: str) -> str:
         final_string += T[i]
         i -= 1
     return final_string[::-1]
+
+def remove_eos_characters(T: str) -> str:
+    no_eos_characters = ''.join([char for char in T if char not in EOS_CHARS])
+    return no_eos_characters

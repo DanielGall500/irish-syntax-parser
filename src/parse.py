@@ -1,4 +1,5 @@
 from tools.syntax.complementisers import ComplementiserAnalyser
+from preprocessing.string_manipulation import remove_eos_characters
 import pandas as pd
 import json
 
@@ -16,7 +17,7 @@ class ClauseParser:
         starting_clause = 0
         n_clauses = len(clauses)
         parsed_clauses = self._parse_recursive(clauses, n_clauses, starting_clause)
-        return parsed_clauses
+        return n_clauses, parsed_clauses
 
     def _parse_recursive(self, clauses: list[list[str]], n_clauses: int, curr_clause: int):
         clause_info = {}
@@ -69,13 +70,14 @@ class SentenceParser:
             "num_embedded_clauses": None
         }
 
-        lemmas = self.lemmatiser(sentence)
-        clause_structure = self.clause_parser(lemmas)
-        n_clauses = len(clause_structure)
+        # perform preprocessing on the string and convert it to a list of lemmas
+        without_special_characters = remove_eos_characters(sentence)
+        lemmas = self.lemmatiser(without_special_characters)
+        n_clauses, clause_structure = self.clause_parser(lemmas)
 
         sentence_info["lemmas"] = lemmas
         sentence_info["clause_structure"] = clause_structure
-        sentence_info["num_embedded_clauses"] = len(clause_structure)
+        sentence_info["num_clauses"] = n_clauses
         return sentence_info
 
 def main():
