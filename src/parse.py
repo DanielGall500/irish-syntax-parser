@@ -13,10 +13,15 @@ class ClauseParser:
         return self.parse(lemmas)
 
     def parse(self, lemmas: str):
+        print("\n\n")
+        print("NEW SENTENCE")
+        print(lemmas)
         clauses = comp_analyser.get_comp_clauses(lemmas)
+        print(clauses)
         starting_clause = 0
         n_clauses = len(clauses)
         parsed_clauses = self._parse_recursive(clauses, n_clauses, starting_clause)
+        print("Parsed", parsed_clauses)
         return n_clauses, parsed_clauses
 
     def _parse_recursive(self, clauses: list[list[str]], n_clauses: int, curr_clause: int):
@@ -67,7 +72,7 @@ class SentenceParser:
             "full": sentence,
             "lemmas": None,
             "clause_structure": None,
-            "num_embedded_clauses": None
+            "num_clauses": None
         }
 
         # perform preprocessing on the string and convert it to a list of lemmas
@@ -95,7 +100,7 @@ def main():
     for i, ps in enumerate(parsed_sentences):
         ps["english_translation"] = english_translations[i]
 
-    with open('data/clause_info.json', 'w', encoding='utf-8') as file:
+    with open('data/results/clause_info.json', 'w', encoding='utf-8') as file:
         json.dump(parsed_sentences, file, indent=4, ensure_ascii=False)
 
 if __name__ == "__main__":

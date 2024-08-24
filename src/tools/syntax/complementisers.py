@@ -70,11 +70,14 @@ class ComplementiserAnalyser:
         return False
 
     def clause_begins_with_number(self, lemmas: list) -> bool:
-        # take the first lemma in the clause
-        initial_lemma = lemmas[0]
+        if len(lemmas) == 0:
+            return False
+        else:
+            # take the first lemma in the clause
+            initial_lemma = lemmas[0]
 
-        # check whether that lemma is a number
-        return self.tagger.is_number(initial_lemma)
+            # check whether that lemma is a number
+            return self.tagger.is_number(initial_lemma)
 
     def is_preceded_by_noun(self, lemmas: list, comp_index:int) -> bool:
         # store everything up to the given complementiser
@@ -88,12 +91,14 @@ class ComplementiserAnalyser:
         return False
 
     def clause_ends_in_noun(self, lemmas: list) -> bool:
-        print(lemmas)
-        # take the last lemma in the clause
-        final_lemma = lemmas[-1]
+        if len(lemmas) == 0:
+            return False
+        else:
+            # take the last lemma in the clause
+            final_lemma = lemmas[-1]
 
-        # check whether that lemma is a noun
-        return self.tagger.is_noun(final_lemma)
+            # check whether that lemma is a noun
+            return self.tagger.is_noun(final_lemma)
 
     def is_followed_by_adjective(self, lemmas: list, comp_index: int):
         # does not take into account when the adjective
@@ -110,11 +115,14 @@ class ComplementiserAnalyser:
         return False
 
     def clause_begins_with_adjective(self, lemmas: list) -> bool:
-        # take the first lemma in the clause
-        initial_lemma = lemmas[0]
+        if len(lemmas) == 0:
+            return False
+        else:
+            # take the first lemma in the clause
+            initial_lemma = lemmas[0]
 
-        # check whether that lemma is a noun
-        return self.tagger.is_noun(initial_lemma)
+            # check whether that lemma is a noun
+            return self.tagger.is_noun(initial_lemma)
 
     def contains_resumptive(self, lemmas: list, comp_index: int) -> list:
         # store everything in the embedded clause

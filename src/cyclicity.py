@@ -20,13 +20,6 @@ def main():
         print("Full Sentence: ", s)
         print("Lemmas: ", lemmas)
         print("Parsed: ", clause_as_str)
-
-        """
-        for c in clauses:
-            print("Clause: ", c["clause"])
-            print("Selects: ", c["selected_comp"])
-            print("----")
-        """
         
         print("\n\n")
         print("Next Clause")

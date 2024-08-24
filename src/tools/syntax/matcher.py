@@ -68,10 +68,14 @@ class ComplementiserMatcher:
             NP_initial = self.pos_tagger.is_definite_article(following_word) or self.pos_tagger.is_noun(following_word)
             if comp_realisation == "ar" and NP_initial:
                 return True
-        return False
-
             
+            # check if preposition for a number (remember verb-initial)
+            if comp_realisation == "go" and self.pos_tagger.is_number(following_word):
+                return True
 
+            if comp_realisation == "go" and self.pos_tagger.is_adjective(following_word):
+                return True
+        return False
 
     def get_go_particle(self, lemmas: list[str]) -> list:
         realisations = COMP_REALISATIONS['go']
