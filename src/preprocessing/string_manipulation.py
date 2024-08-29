@@ -1,4 +1,5 @@
 from language.syntax import EOS_CHARS
+import os
 
 def up_to_end_of_sentence(T: str) -> str:
     final_string = ""
@@ -22,3 +23,8 @@ def from_beginning_of_sentence(T: str) -> str:
 def remove_eos_characters(T: str) -> str:
     no_eos_characters = ''.join([char for char in T if char not in EOS_CHARS])
     return no_eos_characters
+
+folder = "data/parsed"
+dataset_title_template = "parsed_dataset_"
+path_builder = lambda folder, file: os.path.join(folder, file)
+json_path_builder = lambda comp, region: path_builder(folder, dataset_title_template + comp + "_" + region + ".json")
