@@ -7,6 +7,9 @@ class ParsedSentence:
     def __init__(self, sentence: dict):
         self.sentence = sentence
 
+    def as_dict(self):
+        return self.sentence
+
     def get_full_sentence(self):
         return self.sentence["full"]
 
@@ -18,12 +21,19 @@ class ParsedSentence:
         return self
     
     def __next__(self):
-        if self.curr_clause["embedded_clause"]:
-            # move to the next embedded clause
-            self.curr_clause = self.curr_clause["embedded_clause"]
-            return self.curr_clause
-        else:
+        if self.curr_clause is None:
             raise StopIteration
+
+        clause_to_return = self.curr_clause
+        self.curr_clause = self.curr_clause.get("embedded_clause", None)
+        
+        return clause_to_return
+
+    def __getitem__(self, index):
+        for i, clause in enumerate(self):
+            if i == index:
+                return clause
+        raise KeyError
 
 class IrishClauseParser:
     def __init__(self):
