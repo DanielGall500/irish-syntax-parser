@@ -1,4 +1,4 @@
-from tools.syntax.parser import SentenceParser
+from clip import IrishClauseParser
 import pandas as pd
 import unittest
 
@@ -12,7 +12,7 @@ class TestExample(unittest.TestCase):
         irish_sentences = list(mccloskey_data['sentence_irish'])
         english_translations = list(mccloskey_data['sentence_english'])
 
-        sentence_parser = SentenceParser()
+        sentence_parser = IrishClauseParser()
         cls.parsed_sentences = []
 
         for sentence in irish_sentences:
