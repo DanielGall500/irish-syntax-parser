@@ -1,4 +1,4 @@
-# CLIP: Clause-based Irish Parser
+# Cioglach: Clause-based Irish Parser
 ## Recursively parse Irish into its clauses with encoded linguistic features.
 
 Irish is a highly inflectional Celtic language with Verb-Subject-Object (VSO) word order. In this research we will examine the Irish complementisers and their unique properties when it comes to long-distance dependencies, such as in the sentence *"He’s the guy that they said they thought they wanted to hire __"*, where long-distance movement has taken place from the original position of "the guy" after "hire". Irish has two strategies in order to model this type of long-distance dependency:
