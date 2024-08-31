@@ -1,6 +1,7 @@
 from .tools.syntax.parser import IrishClauseParser, ParsedSentence
+from .mccloskey_parser import McCloskeyParser
 from .preprocessing.string_manipulation import json_path_builder
-from collections import deque
+from collections import deque, Counter
 
 class ExperimentBase:
     def setup(self):
@@ -22,20 +23,22 @@ class AnalyseNounBeforeGoExperiment(ExperimentBase):
     def __init__(self, sentences):
         self.sentences = sentences
 
+    def setup(self):
+        self.nouns_before_comp_counter = 0
+        self.total_clauses_counter = 0
+
     def run(self):
-        nouns_before_comp_counter = 0
-        total_clauses_counter = 0
         for sentence in self.sentences:
             for clause in sentence:
                 if clause["noun_final"]:
-                    nouns_before_comp_counter += 1
-                total_clauses_counter += 1
+                    self.nouns_before_comp_counter += 1
+                self.total_clauses_counter += 1
 
-        percentage = (nouns_before_comp_counter / total_clauses_counter) * 100 if total_clauses_counter > 0 else 0
+        percentage = (self.nouns_before_comp_counter / self.total_clauses_counter) * 100 if self.total_clauses_counter > 0 else 0
 
         return {
-            "Number of complementisers preceded by noun": nouns_before_comp_counter,
-            "Number of clauses": total_clauses_counter,
+            "Number of complementisers preceded by noun": self.nouns_before_comp_counter,
+            "Number of clauses": self.total_clauses_counter,
             "Percentage": percentage
         }
 
@@ -43,24 +46,41 @@ class AnalyseAExperiment(ExperimentBase):
     def __init__(self, sentences):
         self.sentences = sentences
 
-    def run(self):
-        res_pronoun_counter = 0
-        n_sentences = len(self.sentences)
+    def setup(self):
+        self.res_pronoun_counter = 0
+        self.n_sentences = len(self.sentences)
 
+    def run(self):
         for sentence in self.sentences:
             n_clauses = sentence.get_num_clauses()
             if n_clauses > 1:
                 final_clause = deque(sentence, maxlen=1)[0]
                 if final_clause.get("is_resumptive_found", False):
-                    res_pronoun_counter += 1
+                    self.res_pronoun_counter += 1
 
-        percentage = (res_pronoun_counter / n_sentences) * 100 if n_sentences > 0 else 0
+        percentage = (self.res_pronoun_counter / self.n_sentences) * 100 if self.n_sentences > 0 else 0
 
         return {
-            "Number of resumptive final comps found": res_pronoun_counter,
-            "Number of sentences": n_sentences,
+            "Number of resumptive final comps found": self.res_pronoun_counter,
+            "Number of sentences": self.n_sentences,
             "Percentage": percentage
         }
+
+class McCloskeyParserExperiment(ExperimentBase):
+    def __init__(self, sentences):
+        self.sentences = sentences
+
+    def setup(self):
+        self.parser = McCloskeyParser()
+
+    def run(self):
+        parsed_sentences = []
+        for sentence in self.sentences:
+            parsed = self.parser.parse_to_str(sentence)
+            parsed_sentences.append(parsed)
+
+        counted_ps = Counter(parsed_sentences).most_common()
+        return dict(counted_ps)
 
 class ExperimentRunner:
     def __init__(self, experiments):
@@ -93,14 +113,17 @@ def main():
         parsed_sentences = sentence_parser.read_from(path)
         parsed_sentences = [ParsedSentence(sentence) for sentence in parsed_sentences]
 
+        print("\n\n")
         print("Dataset: {}, {}".format(comp, region))
         if comp == "go":
             experiments = [
                 AnalyseNounBeforeGoExperiment(parsed_sentences),
+                McCloskeyParserExperiment(parsed_sentences)
             ]
         elif comp == "a":
             experiments = [
                 AnalyseAExperiment(parsed_sentences),
+                McCloskeyParserExperiment(parsed_sentences)
             ]
         else:
             print("Invalid complementiser.")

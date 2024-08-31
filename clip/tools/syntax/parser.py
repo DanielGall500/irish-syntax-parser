@@ -13,8 +13,21 @@ class ParsedSentence:
     def get_full_sentence(self):
         return self.sentence["full"]
 
+    def get_main_comp(self) -> str | None:
+        return self[0]["selected_comp"]
+
+    def get_comp(self, index: int) -> str | None:
+        if index < self.get_num_clauses():
+            return self[index]["selected_comp"]
+
     def get_num_clauses(self):
         return self.sentence["num_clauses"]
+
+    def set_comp(self, index: int, c: str) -> bool:
+        if index < self.get_num_clauses():
+            self[index]["selected_comp"] = c
+            return True
+        return False
 
     def __iter__(self):
         self.curr_clause = self.sentence["clause_structure"]

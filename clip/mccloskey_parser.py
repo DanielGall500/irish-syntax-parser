@@ -1,20 +1,28 @@
 from .tools.syntax.parser import IrishClauseParser, ParsedSentence
 import pandas as pd
 
+GO_MODERN_RESUMPTIVE_TAG = "goN"
+A_RESUMPTIVE_TAG = "aN"
+A_GAP_TAG = "aL"
+
 class McCloskeyParser:
     def __init__(self):
         self.clause_parser = IrishClauseParser()
 
     def __call__(self, sentence: str):
         parsed_sentence = self.clause_parser(sentence)
-        mccloskey_parsed_s = parsed_sentence
-        n_clauses = parsed_sentence.get_num_clauses()
+        mccloskey_parsed = self.parse(parsed_sentence)
+        return mccloskey_parsed
+
+    def parse(self, ps: ParsedSentence):
+        mccloskey_parsed_s = ps
+        n_clauses = ps.get_num_clauses()
 
         if n_clauses > 1:
             selected_comps = []
             XP_preceding_comps = []
             resumptives = []
-            for i,clause in enumerate(parsed_sentence):
+            for i,clause in enumerate(ps):
                 category = "DP" if clause["noun_final"] else "XP"
                 mccloskey_parsed_s[i]["preceding_category"] = category
                 resumptives.append(clause["is_resumptive_found"])
@@ -26,37 +34,55 @@ class McCloskeyParser:
 
                 # REPLACE WITH LANGUAGE DATA
                 if comp:
-                    if comp in ["go", "gur"]:
+                    if comp in ["go", "gur", "gurbh", "gurb"]:
                         comp = "go"
-                        mccloskey_parsed_s[i]["selected_comp"] = "go"
+                    elif comp in ["ar"]:
+                        comp = "a"
+                    mccloskey_parsed_s.set_comp(i, comp)
+
                     XP_preceding_comps.append(category)
                     selected_comps.append(comp)
 
+            # a number of checks on the clause structure
+            is_resumptive_in_final_clause = resumptives[-1]
+            is_go_in_embedded_clauses = all(c == "go" for c in selected_comps[1:])
+            is_gap_structure = all(c == "a" for c in selected_comps)
+            is_main_clause_a = mccloskey_parsed_s.get_main_comp() == "a"
+            is_main_clause_go = mccloskey_parsed_s.get_main_comp() == "go"
+
             # modern resumptive structure
-            if resumptives[-1] and selected_comps[0] == "go":
-                mccloskey_parsed_s[0]["selected_comp"] = "goN"
+            if is_resumptive_in_final_clause and is_main_clause_go:
+                mccloskey_parsed_s.set_comp(0, GO_MODERN_RESUMPTIVE_TAG)
             # resumptive structure
-            elif resumptives[-1] and selected_comps[0] == "a":
-                mccloskey_parsed_s[0]["selected_comp"] = "aN"
+            elif is_resumptive_in_final_clause and is_main_clause_a and is_go_in_embedded_clauses:
+                mccloskey_parsed_s.set_comp(0, A_RESUMPTIVE_TAG)
             # gap structure
-            elif all(c == "a" for c in selected_comps) and resumptives[-1] == False:
+            elif is_gap_structure and not is_resumptive_in_final_clause:
                 # for every clause except the final one
                 for i in range(n_clauses-1):
                     # change the selected comp to aL instead of a
-                    mccloskey_parsed_s[i]["selected_comp"] = "aL"
+                    mccloskey_parsed_s.set_comp(i, A_GAP_TAG)
             else:
                 # for every clause except the final one
                 for i in range(n_clauses-1):
                     # change the selected comp to aL instead of a
-                    if mccloskey_parsed_s[i]["selected_comp"] == "a":
-                        mccloskey_parsed_s[i]["selected_comp"] = "aL"
-
+                    clause_comp = mccloskey_parsed_s.get_comp(i)
+                    if clause_comp == "a":
+                        mccloskey_parsed_s.set_comp(i, A_GAP_TAG)
         else:
-            return parsed_sentence
+            return ps
         return mccloskey_parsed_s
 
-    def parse_to_str(self, sentence: str):
-        mccloskey_parsed_sentence = self.__call__(sentence)
+    def parse_from_json(self, path: str):
+        parsed_sentences = self.clause_parser.read_from(path)
+        mccloskey_sentences = []
+        for sentence in parsed_sentences:
+            mccloskey_ps = self.parse(sentence)
+            mccloskey_sentences.append(mccloskey_ps)
+        return mccloskey_sentences
+
+    def parse_to_str(self, sentence: ParsedSentence):
+        mccloskey_parsed_sentence = self.parse(sentence)
         n_clauses = mccloskey_parsed_sentence.get_num_clauses()
         result = ""
 
