@@ -15,13 +15,17 @@ class EmbeddingCounter:
         for s in sentences:
             n_clauses = s.get_num_clauses()
             for i,c in enumerate(s):
+                # only keep 4 levels of embedding
+                if i >= 2:
+                    break
+
                 comp = c["selected_comp"]
+                if not comp:
+                    break
+                
                 if i+1 < n_clauses:
                     comp_2 = s[i+1]["selected_comp"]
-                else:
-                    comp_2 = "T"
-
-                if not comp:
+                if not comp_2:
                     break
 
                 key = embedding_key(i, comp, comp_2)
@@ -31,12 +35,6 @@ class EmbeddingCounter:
                 else:
                     embeddings[key] += 1
 
-        """
-        for k in embeddings.keys():
-            comps_at_embedding_X = embeddings[k]
-            counted = dict(Counter(comps_at_embedding_X).most_common())
-            embeddings[k] = counted
-        """
         return embeddings
 
 def main():
@@ -84,12 +82,15 @@ def main():
         print(values)
         # Create the Sankey diagram
         diagram_labels = [x[3:] for x in node_labels]
+        node_positions = [int(x[1])/10 for x in node_labels]
+        print(node_positions)
         fig = go.Figure(data=[go.Sankey(
             node=dict(
                 pad=15,
                 thickness=20,
                 line=dict(color="black", width=0.5),
-                label=diagram_labels,
+                label=node_labels,
+                x=node_positions
             ),
             link=dict(
                 source=sources,  # indices of source nodes
