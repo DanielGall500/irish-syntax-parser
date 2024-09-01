@@ -41,7 +41,6 @@ def main():
     embedding_counter = EmbeddingCounter()
     sentence_parser = McCloskeyParser()
 
-    # -- Step 1: Store the data from each region. --
     datasets = [
         ("go", "Connacht"),
         ("go", "Munster"),
@@ -60,7 +59,6 @@ def main():
         path = json_path_builder(comp, region)
         parsed_sentences = sentence_parser.parse_from_json(path)
         embeddings = embedding_counter(parsed_sentences)
-        # print(json.dumps(embeddings, indent=4))
 
         node_labels = set()
         for (src, tgt) in embeddings.keys():
@@ -69,7 +67,7 @@ def main():
             if tgt is not None:
                 node_labels.add(tgt)
 
-        node_labels = sorted(node_labels)  # Sort to have consistent indexing
+        node_labels = sorted(node_labels)  
         node_map = {label: i for i, label in enumerate(node_labels)}
 
         sources = [node_map[x] for (x,y) in embeddings.keys()]
@@ -80,7 +78,7 @@ def main():
         print(sources)
         print(targets)
         print(values)
-        # Create the Sankey diagram
+
         diagram_labels = [x[3:] for x in node_labels]
         node_positions = [int(x[1])/10 for x in node_labels]
         print(node_positions)
@@ -89,7 +87,7 @@ def main():
                 pad=15,
                 thickness=20,
                 line=dict(color="black", width=0.5),
-                label=node_labels,
+                label=diagram_labels,
                 x=node_positions
             ),
             link=dict(
