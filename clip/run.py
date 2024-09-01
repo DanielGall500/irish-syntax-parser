@@ -1,6 +1,7 @@
 from .tools.syntax.parser import IrishClauseParser, ParsedSentence
 from .mccloskey_parser import McCloskeyParser
-from .preprocessing.string_manipulation import json_path_builder
+from .preprocessing.string_manipulation import json_path_builder, csv_path_builder
+import pandas as pd
 from collections import deque, Counter
 
 class ExperimentBase:
@@ -67,20 +68,31 @@ class AnalyseAExperiment(ExperimentBase):
         }
 
 class McCloskeyParserExperiment(ExperimentBase):
-    def __init__(self, sentences):
+    def __init__(self, sentences, output_path=None):
         self.sentences = sentences
+        self.output_path = output_path
 
     def setup(self):
         self.parser = McCloskeyParser()
 
     def run(self):
-        parsed_sentences = []
-        for sentence in self.sentences:
-            parsed = self.parser.parse_to_str(sentence)
-            parsed_sentences.append(parsed)
+        parsed_sentences = self.parser.parse_to_list(self.sentences)
+        counted_ps = dict(Counter(parsed_sentences).most_common())
+        patterns = counted_ps.keys()
+        occurrences = counted_ps.values()
 
-        counted_ps = Counter(parsed_sentences).most_common()
+        df = pd.DataFrame({
+            "pattern": patterns,
+            "count": occurrences
+        })
+        self.output_df = df
+
         return dict(counted_ps)
+
+    def teardown(self):
+        # save the results to their own CSV file
+        self.output_df.to_csv(self.output_path, index=False)
+        pass
 
 class ExperimentRunner:
     def __init__(self, experiments):
@@ -112,18 +124,19 @@ def main():
         path = json_path_builder(comp, region)
         parsed_sentences = sentence_parser.read_from(path)
         parsed_sentences = [ParsedSentence(sentence) for sentence in parsed_sentences]
+        output_path = csv_path_builder(comp, region)
 
         print("\n\n")
         print("Dataset: {}, {}".format(comp, region))
         if comp == "go":
             experiments = [
                 AnalyseNounBeforeGoExperiment(parsed_sentences),
-                McCloskeyParserExperiment(parsed_sentences)
+                McCloskeyParserExperiment(parsed_sentences, output_path)
             ]
         elif comp == "a":
             experiments = [
                 AnalyseAExperiment(parsed_sentences),
-                McCloskeyParserExperiment(parsed_sentences)
+                McCloskeyParserExperiment(parsed_sentences, output_path)
             ]
         else:
             print("Invalid complementiser.")

@@ -16,7 +16,7 @@ def main():
         ("a", "Ulster")
     ]
     print("Loading in datasets")
-    nrows = 10000
+    nrows = 1000
 
     for dataset in datasets:
         comp = dataset[0]

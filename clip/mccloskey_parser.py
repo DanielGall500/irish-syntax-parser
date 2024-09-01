@@ -98,6 +98,9 @@ class McCloskeyParser:
                 result += comp + " [ "
         return result
 
+    def parse_to_list(self, sentences: list[ParsedSentence]):
+        return [self.parse_to_str(s) for s in sentences]
+
 def main():
     parser = McCloskeyParser()
     example = "An fhilíocht a chum sí."

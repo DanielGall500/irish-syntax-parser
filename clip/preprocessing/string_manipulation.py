@@ -24,7 +24,9 @@ def remove_eos_characters(T: str) -> str:
     no_eos_characters = ''.join([char for char in T if char not in EOS_CHARS])
     return no_eos_characters
 
-folder = "data/parsed"
+folder_basic_parsing = "data/complementiser_parsed"
+folder_mccloskey_parsing = "data/mccloskey_parsed"
 dataset_title_template = "parsed_dataset_"
 path_builder = lambda folder, file: os.path.join(folder, file)
-json_path_builder = lambda comp, region: path_builder(folder, dataset_title_template + comp + "_" + region + ".json")
+json_path_builder = lambda comp, region: path_builder(folder_basic_parsing, dataset_title_template + comp + "_" + region + ".json")
+csv_path_builder = lambda comp, region: path_builder(folder_mccloskey_parsing, dataset_title_template + comp + "_" + region + ".csv")
