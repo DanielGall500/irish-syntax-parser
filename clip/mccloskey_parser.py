@@ -73,7 +73,7 @@ class McCloskeyParser:
             return ps
         return mccloskey_parsed_s
 
-    def parse_from_json(self, path: str):
+    def parse_from_json(self, path: str) -> list[ParsedSentence]:
         parsed_sentences = self.clause_parser.read_from(path)
         mccloskey_sentences = []
         for sentence in parsed_sentences:

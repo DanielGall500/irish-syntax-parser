@@ -90,7 +90,7 @@ class IrishClauseParser:
                 data = json.load(file)
                 
                 if isinstance(data, list) and all(isinstance(item, dict) for item in data):
-                    return data
+                    return [ParsedSentence(s) for s in data]
                 else:
                     raise ValueError("The JSON data is not a list of dictionaries.")
         except FileNotFoundError:

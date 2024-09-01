@@ -123,7 +123,6 @@ def main():
         region = dataset[1]
         path = json_path_builder(comp, region)
         parsed_sentences = sentence_parser.read_from(path)
-        parsed_sentences = [ParsedSentence(sentence) for sentence in parsed_sentences]
         output_path = csv_path_builder(comp, region)
 
         print("\n\n")
